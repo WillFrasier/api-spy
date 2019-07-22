@@ -15,4 +15,6 @@ This is a test project and should not be consumed at this point
 - [ ] Hook into [Chrome Web Request](https://developer.chrome.com/extensions/webRequest)
 - [ ] UI to display the routes
 
- 
+ ### Misc
+ - [ ] Docs / Usage Guide
+ - [ ] publish to npm
