@@ -1,0 +1,14 @@
+{
+  "short_name": "Api Spy",
+  "name": "Api Spy - The node api debugger",
+  "icons": { 
+    "16": "favicon.ico",
+    "48": "favicon.ico",
+    "128": "favicon.ico" 
+  },
+  "version": "1.0",
+  "manifest_version": 2,
+  "browser_action": {
+      "default_popup": "index.html"
+  }
+}
