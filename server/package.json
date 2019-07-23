@@ -1,0 +1,35 @@
+{
+  "name": "api-spy",
+  "version": "1.0.1",
+  "description": "An api route debugger",
+  "main": "index.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/WillFrasier/api-spy.git"
+  },
+  "keywords": [
+    "Api",
+    "Debugger"
+  ],
+  "author": "Will Frasier <willfrasier@hotmail.com>",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/WillFrasier/api-spy/issues"
+  },
+  "homepage": "https://github.com/WillFrasier/api-spy#readme",
+  "dependencies": {
+    "express": "^4.17.1",
+    "nodemon": "^1.19.1",
+    "request-local-storage": "^1.2.0",
+    "uuid": "^3.3.2"
+  },
+  "devDependencies": {
+    "eslint": "^6.1.0",
+    "eslint-config-standard": "^13.0.1",
+    "eslint-plugin-import": "^2.18.2",
+    "eslint-plugin-node": "^9.1.0",
+    "eslint-plugin-promise": "^4.2.1",
+    "eslint-plugin-react": "^7.14.2",
+    "eslint-plugin-standard": "^4.0.0"
+  }
+}
