@@ -21,7 +21,7 @@
      */
     function generateGuid() {
         let format = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx';
-        return format.replace(/[xy]/g, function(c) {
+        return format.replace(/[xy]/g, function (c) {
             let r = (Math.random() * 16) | 0,
                 v = c === 'x' ? r : (r & 0x3) | 0x8;
             return v.toString(16);
@@ -35,7 +35,7 @@
         if (!details || !tabId || !requestId) {
             return;
         }
-        if (!tabStorage[tabId] ) {
+        if (!tabStorage[tabId]) {
             tabStorage[tabId] = {
                 id: tabId,
                 requests: {},
@@ -46,8 +46,26 @@
             requestId: requestId,
             url: details.url,
             startTime: details.timeStamp,
-            status: 'pending'        
+            status: 'pending'
         };
+    }
+    /**
+     * Sends the specified request to the dev tools panel via [extension messaging](https://developers.chrome.com/extensions/messaging)
+     */
+    function invokeSendMessage(requestToSend, reason) {
+        // TODO... 
+        const message = {
+            reason: reason,
+            request: requestToSend
+        };
+        // send message
+        host.runtime.sendMessage(
+            message, 
+            (response) => {
+                console.log(`[ApiSpy.invokeSendMessage] Message received: ${JSON.stringify(response)}`);
+            }
+        );
+
     }
 
     /**
@@ -55,7 +73,7 @@
      * header if it doesn't already exist
      */
     host.webRequest.onBeforeSendHeaders.addListener(
-        function(details) {
+        function (details) {
             const { tabId, requestId } = details;
             ensureRequestExists(details);
             const requestGuid = generateGuid();
@@ -69,11 +87,11 @@
                     value: requestGuid
                 })
             }
-    
-          return { requestHeaders: details.requestHeaders };
+
+            return { requestHeaders: details.requestHeaders };
         },
         { urls: ["<all_urls>"] },
-        [ "blocking", "requestHeaders"]);
+        ["blocking", "requestHeaders"]);
 
     /**
      * Occurs when we first received the status line and the headers. 
@@ -81,11 +99,11 @@
      * entry from the central store  
      */
     host.webRequest.onResponseStarted.addListener(
-        function(details) {
+        function (details) {
             const { tabId, requestId } = details;
             ensureRequestExists(details);
 
-            if(!details.responseHeaders) {
+            if (!details.responseHeaders) {
                 console.log(`[ApiSpy.onResponseStarted] No response headers returned for: ${details.url}`);
                 return;
             }
@@ -104,7 +122,7 @@
             console.log(`[ApiSpy] Api Response Acquired: ${details.url}`);
         },
         { urls: ["<all_urls>"] },
-        [ "extraHeaders", "responseHeaders" ]);
+        ["extraHeaders", "responseHeaders"]);
 
     /**
      * Occurs at the start of a request. Registers the request with the central store
@@ -115,14 +133,24 @@
 
     host.webRequest.onCompleted.addListener((details) => {
         const { tabId, requestId } = details;
-        ensureRequestExists(details);
-        const request = tabStorage[tabId].requests[requestId];
+        
+        if(tabStorage[tabId] && tabStorage[tabId].requests[requestId]) {
+            // we will only have a registry if we have received
+            // the proper header. Otherwise the entry will be deleted
+            // to save memory in function onResponseStarted
+            const request = tabStorage[tabId].requests[requestId];
 
-        Object.assign(request, {
-            endTime: details.timeStamp,
-            requestDuration: details.timeStamp - request.startTime,
-            status: 'complete'
-        });
+            if(request.incomingApiSpyHeader) {
+                Object.assign(request, {
+                    endTime: details.timeStamp,
+                    requestDuration: details.timeStamp - request.startTime,
+                    status: 'complete'
+                });
+                invokeSendMessage(request, 'complete');
+            }
+        }
+        
+
     }, networkFilters);
 
     /**

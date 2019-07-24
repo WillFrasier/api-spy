@@ -1,0 +1,67 @@
+<html>
+
+<head>
+    <script src="scripts/panel.js"></script>
+</head>
+<style>
+    body,
+    p,
+    div,
+    span {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        color: white;
+    }
+
+    h1,
+    h2,
+    h3,
+    h4 {
+        font-family: 'Segoe UI Light', Tahoma, Geneva, Verdana, sans-serif;
+        font-weight: normal;
+    }
+
+    a,
+    a:visited,
+    a:active {
+        color: #6699ee;
+    }
+</style>
+<script src="scripts/jquery-3.4.1.slim.min.js"></script>
+
+<body>
+    <h2>Api Spy</h2>
+    <p>
+        Api Spy is an api debugger for node. For more information on how to set up and use this tool check out the <a
+            href="https://github.com/willfrasier/api-spy#readme" target="_blank">wiki</a>.
+    </p>
+    <p>
+        Select a request below to see the back end api characteristics.
+    </p>
+
+    <div id='panel-root'>
+
+        <div id='requests-container'>
+            <table id='requests-table'>
+                <thead>
+                    <tr>
+                        <th>id</th>
+                        <th>url</th>
+                        <th>status</th>
+                        <th>duration</th>
+                    </tr>
+                    <tbody>
+                        <tr>
+                            <td>asdf</td>
+                            <td>/api/v1/blah</td>
+                            <td>completed</td>
+                            <td>2.0345345s</td>
+                        </tr>
+                    </tbody>
+                </thead>
+            </table>
+        </div>
+
+    </div>
+</body>
+
+</html>
