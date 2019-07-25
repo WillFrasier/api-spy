@@ -43,6 +43,7 @@
             };
         }
         tabStorage[tabId].requests[requestId] = {
+            tabId: tabId,
             requestId: requestId,
             url: details.url,
             startTime: details.timeStamp,
