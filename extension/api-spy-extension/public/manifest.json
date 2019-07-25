@@ -18,7 +18,8 @@
       "scripts/apiSpy.js",
       "scripts/devtools.js",
       "scripts/panel.js",
-      "scripts/jquery-3.4.1.slim.min.js"
+      "scripts/jquery-3.4.1.min.js",
+      "scripts/moment.js"
     ]
   },
   "permissions": [

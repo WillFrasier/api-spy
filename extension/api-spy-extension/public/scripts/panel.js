@@ -20,6 +20,86 @@ function onMessageReceivedHandler(message, sender, sendResponse) {
     renderTable();
 }
 
+
+/**
+ * Occurs when the user clicks an individual request
+ * Responsible for rendering the details table
+ */
+function handleRequestClick(request) {
+
+    if (!request) {
+        console.log(`[ApiSpy.panel.handleRequestClick] Received a null request. Bailing...`);
+        return;
+    }
+
+    const loadingContainer = $('#api-spy-panel #details-container #loading-container');
+    const detailsPanel = $('#api-spy-panel #details-container #details-panel');
+
+    const requestUri = new URL(request.url);
+    const serverDomain = requestUri.protocol + '//' + requestUri.hostname + (requestUri.port ? ':' + requestUri.port : '');
+    const apiSpyUri = `${serverDomain}/api/v1/apiDebugger/${request.incomingApiSpyHeader}`;
+
+    loadingContainer.show();
+    detailsPanel.hide();
+    $.getJSON(apiSpyUri, function (data) {
+        // TODO: error / no data handling
+        loadingContainer.hide();
+
+        if (data) {
+            detailsPanel.show();
+            renderDetailsPanel(data);
+        }
+    });
+
+}
+
+function renderDetailsPanel(apiSpyResponseData) {
+
+    const ganttChartContainer = $('#api-spy-panel #details-container #gantt-chart-container');
+    ganttChartContainer.empty();
+
+    const overallDuration = apiSpyResponseData.timing.durationInMilliseconds;
+    const momentOverallStart = moment(apiSpyResponseData.timing.startTime);
+
+    if (apiSpyResponseData.queries && apiSpyResponseData.queries.length > 0) {
+        apiSpyResponseData.queries.forEach((query, index) => {
+            const gridRow = index + 1; // because grid rows are 1 based
+            ganttChartContainer.append($(`<div class='name' style='grid-row: ${gridRow};'>${query.name}</div>`));
+            ganttChartContainer.append($(`<div class='cache' style='grid-row: ${gridRow};'>${query.resultFromCache}</div>`));
+            ganttChartContainer.append($(`<div class='duration' style='grid-row: ${gridRow};'>${query.queryDuration}ms</div>`));
+
+            // calculate the timing bar
+            const momentQueryStart = moment(query.queryStart);
+
+            const durationBetweenOverallStartAndApiStart = momentQueryStart.diff(momentOverallStart);
+            const queryStartAsPercentageOfTotal = Math.round(
+                Math.ceil((durationBetweenOverallStartAndApiStart / overallDuration) * 100),
+                0
+            );
+            const queryEndAsPercentageOfTotal = Math.round(
+                Math.ceil(((durationBetweenOverallStartAndApiStart + query.queryDuration) /overallDuration) * 100),
+                0
+            );
+            let queryOverallPercentageOfRequestTime = Math.round((query.queryDuration / overallDuration) * 100, 2);
+
+            if (queryOverallPercentageOfRequestTime < 1) {
+                // nothing takes zero time. push this to 1 ms to 1% so show something on the page
+                queryOverallPercentageOfRequestTime = 1;
+            }
+
+            // gantt bar - spans the entire background
+            ganttChartContainer.append($(`<div class='gantt-background' style='grid-row: ${gridRow};'></div>`));
+
+            // add 4 here because we start at column 4
+            ganttChartContainer.append($(`<div class='gantt-bar' style='grid-row: ${gridRow}; grid-column-start: ${queryStartAsPercentageOfTotal + 4}; grid-column-end: ${queryEndAsPercentageOfTotal + 4};'>&nbsp;</div>`));
+
+        })
+    }
+
+    ganttChartContainer.show();
+}
+
+
 /**
  * Renders the current table
  */
@@ -31,37 +111,44 @@ function renderTable() {
         currentWindow: true
     }, (tabs) => {
         const currentTab = tabs[0];
-        if(!currentTab) {
-            console.log(`[ApiSpy] Unable to acquire current tab. Can't determine which api spy requests to render. Bailing...`);
+        if (!currentTab) {
+            console.log(`[ApiSpy.panel.renderTable] Unable to acquire current tab. Can't determine which api spy requests to render. Bailing...`);
             return;
         }
-
-        const tbody = $('#requests-container #requests-table tbody');
+        const table = $('#api-spy-panel #requests-container #requests-table');
+        const tbody = $('#api-spy-panel #requests-container #requests-table tbody');
         const requestStoreClone = requestStore
             .filter(r => r.tabId === currentTab.id)
             .slice(0, maxNumberOfRequestsToRender);
 
         if (requestStoreClone && requestStoreClone.length > 0) {
             tbody.empty();
-            
+
             requestStoreClone.forEach(request => {
                 const requestUri = new URL(request.url);
                 const formattedUri = requestUri.pathname + requestUri.search;
+
+                const requestUriCell = $(`<td className='request-uri'>${formattedUri}</td>`);
+                requestUriCell.data('request', request);
+                requestUriCell.click((e) => {
+                    const request = $(e.target).data('request');
+                    handleRequestClick(request);
+                });
+
                 tbody.append($('<tr>')
                     .append($(`<td>${request.incomingApiSpyHeader}</td>`))
-                    .append($(`<td>${formattedUri}</td>`))
+                    .append(requestUriCell)
                     .append($(`<td>${request.status}</td>`))
                     .append($(`<td>${request.requestDuration}</td>`))
                 );
             });
+            table.show();
+        } else {
+            // hide table
+            table.hide();
         }
 
     });
-
-    panelDevToolsHost.tabs.getCurrent((tab) => {
-        
-
-    })
 }
 
 // wire up event handler

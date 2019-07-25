@@ -1,15 +1,14 @@
 <html>
 
 <head>
+    <script src="scripts/moment.js"></script>
     <script src="scripts/panel.js"></script>
 </head>
 <style>
-    body,
-    p,
-    div,
-    span {
+    #api-spy-panel {
         font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         color: white;
+        font-size: 0.99em;
     }
 
     h1,
@@ -25,20 +24,68 @@
     a:active {
         color: #6699ee;
     }
-</style>
-<script src="scripts/jquery-3.4.1.slim.min.js"></script>
 
-<body>
-    <h2>Api Spy</h2>
-    <p>
-        Api Spy is an api debugger for node. For more information on how to set up and use this tool check out the <a
-            href="https://github.com/willfrasier/api-spy#readme" target="_blank">wiki</a>.
-    </p>
-    <p>
-        Select a request below to see the back end api characteristics.
-    </p>
+    #gantt-chart-container {
+        /*
+            Column format: 
+            1: Name
+            2: Cache
+            3: Duration
+            4: Gantt chart
+        */
+        display: grid;
+        /* Set 100 columns here so we can easily assign columns in percentages */
+        grid-template-columns: -webkit-max-content -webkit-max-content -webkit-max-content repeat(100, 1fr);
+        grid-template-columns: max-content max-content max-content repeat(100, 1fr);
+        grid-template-rows: auto;
+    }
+
+    #gantt-chart-container>div {
+        display: inline-block;
+    }
+
+    #gantt-chart-container .name {
+        grid-column: 1
+    }
+
+    #gantt-chart-container .cache {
+        grid-column: 2
+    }
+
+    #gantt-chart-container .duration {
+        grid-column: 3
+    }
+
+    #gantt-chart-container .gantt-background {
+        background-color: #868686;
+        grid-column: 4 / none;
+        /* Indicates that this should span from 5th columns to the end */
+        border: solid 1px #aaaaaa;
+    }
+
+    #gantt-chart-container .gantt-bar {
+        height: 23px;
+        grid-column: 4 / none;
+        background-color: #55cc83;
+    }
+</style>
+<script src="scripts/jquery-3.4.1.min.js"></script>
+
+<body id='api-spy-panel'>
+
 
     <div id='panel-root'>
+
+        <div>
+            <h2>Api Spy</h2>
+            <p>
+                Api Spy is an api debugger for node. For more information on how to set up and use this tool check out
+                the <a href="https://github.com/willfrasier/api-spy#readme" target="_blank">wiki</a>.
+            </p>
+            <p>
+                Select a request below to see the back end api characteristics.
+            </p>
+        </div>
 
         <div id='requests-container'>
             <table id='requests-table'>
@@ -49,16 +96,28 @@
                         <th>status</th>
                         <th>duration</th>
                     </tr>
-                    <tbody>
-                        <tr>
-                            <td>asdf</td>
-                            <td>/api/v1/blah</td>
-                            <td>completed</td>
-                            <td>2.0345345s</td>
-                        </tr>
-                    </tbody>
                 </thead>
+                <tbody>
+                </tbody>
             </table>
+        </div>
+
+        <div id='details-container'>
+
+            <div id='loading-container'>
+                Loading...
+            </div>
+
+            <div id='details-panel'>
+
+                <h2>Request Details</h2>
+
+                <div id='gantt-chart-container'>
+
+                </div>
+
+            </div>
+
         </div>
 
     </div>
