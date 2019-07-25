@@ -32,29 +32,30 @@ function handleRequestClick(request) {
         return;
     }
 
-    const loadingContainer = $('#api-spy-panel #details-container #loading-container');
-    const detailsPanel = $('#api-spy-panel #details-container #details-panel');
+    
 
     const requestUri = new URL(request.url);
     const serverDomain = requestUri.protocol + '//' + requestUri.hostname + (requestUri.port ? ':' + requestUri.port : '');
     const apiSpyUri = `${serverDomain}/api/v1/apiDebugger/${request.incomingApiSpyHeader}`;
 
-    loadingContainer.show();
-    detailsPanel.hide();
-    $.getJSON(apiSpyUri, function (data) {
-        // TODO: error / no data handling
-        loadingContainer.hide();
+    const requestFromStore = requestStore.find(r => r.incomingApiSpyHeader === request.incomingApiSpyHeader);
 
-        if (data) {
-            detailsPanel.show();
-            renderDetailsPanel(data);
-        }
-    });
-
+    if (requestFromStore && requestFromStore.apiSpyRequestDetails) {
+        renderDetailsPanel(requestFromStore.apiSpyRequestDetails);
+    } else {
+        $.getJSON(apiSpyUri, function (data) {
+            if (data) {
+                requestFromStore.apiSpyRequestDetails = data;
+                renderDetailsPanel(requestFromStore.apiSpyRequestDetails);
+            }
+        });
+    }
 }
 
 function renderDetailsPanel(apiSpyResponseData) {
 
+    const loadingContainer = $('#api-spy-panel #details-container #loading-container');
+    const detailsPanel = $('#api-spy-panel #details-container #details-panel');
     const ganttChartContainer = $('#api-spy-panel #details-container #gantt-chart-container');
     ganttChartContainer.empty();
 
@@ -96,6 +97,8 @@ function renderDetailsPanel(apiSpyResponseData) {
         })
     }
 
+    loadingContainer.hide();
+    detailsPanel.show();
     ganttChartContainer.show();
 }
 
@@ -128,7 +131,7 @@ function renderTable() {
                 const requestUri = new URL(request.url);
                 const formattedUri = requestUri.pathname + requestUri.search;
 
-                const requestUriCell = $(`<td className='request-uri'>${formattedUri}</td>`);
+                const requestUriCell = $(`<td class='request-uri link-button'>${formattedUri}</td>`);
                 requestUriCell.data('request', request);
                 requestUriCell.click((e) => {
                     const request = $(e.target).data('request');
@@ -136,7 +139,6 @@ function renderTable() {
                 });
 
                 tbody.append($('<tr>')
-                    .append($(`<td>${request.incomingApiSpyHeader}</td>`))
                     .append(requestUriCell)
                     .append($(`<td>${request.status}</td>`))
                     .append($(`<td>${request.requestDuration}</td>`))

@@ -25,6 +25,42 @@
         color: #6699ee;
     }
 
+    .link-button {
+        background-color: transparent;
+        border: none;
+        color: #0078d7;
+        cursor: pointer;
+        text-decoration: none;
+        display: inline;
+        margin: 0;
+        padding: 0;
+    }
+
+    #requests-table {
+        border-collapse: collapse;
+    }
+
+    #requests-table thead tr th {
+        padding: 2px;
+        text-align: left;
+    }
+
+    #requests-table tbody tr td {
+        padding: 2px;
+    }
+
+    #requests-table tbody tr {
+        background-color: transparent;
+        transition: background-color 75ms ease-in-out;
+    }
+    #requests-table tbody tr:hover {
+        background-color: #323232;
+    }
+
+    #requests-table tbody td.request-uri {
+        cursor: pointer;
+    }
+
     #gantt-chart-container {
         /*
             Column format: 
@@ -42,10 +78,12 @@
 
     #gantt-chart-container>div {
         display: inline-block;
+        padding: 2px;
     }
 
     #gantt-chart-container .name {
-        grid-column: 1
+        grid-column: 1;
+        font-family: 'Segoe UI Semibold', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     }
 
     #gantt-chart-container .cache {
@@ -66,7 +104,16 @@
     #gantt-chart-container .gantt-bar {
         height: 23px;
         grid-column: 4 / none;
-        background-color: #55cc83;
+        background-color: rgb(62, 202, 92);
+        transition: background-color 300ms ease-in-out;
+    }
+
+    #gantt-chart-container .gantt-bar:hover {
+        background-color: rgb(63, 161, 84);
+    }
+
+    .loading-container {
+        display: none;
     }
 </style>
 <script src="scripts/jquery-3.4.1.min.js"></script>
@@ -91,7 +138,6 @@
             <table id='requests-table'>
                 <thead>
                     <tr>
-                        <th>id</th>
                         <th>url</th>
                         <th>status</th>
                         <th>duration</th>
