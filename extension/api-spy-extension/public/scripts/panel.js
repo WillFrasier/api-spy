@@ -144,7 +144,7 @@ function renderDetailsPanel(apiSpyResponseData) {
     const loadingContainer = $('#api-spy-panel #details-container #loading-container');
     const detailsPanel = $('#api-spy-panel #details-container #details-panel');
     const ganttChartContainer = $('#api-spy-panel #details-container #gantt-chart-container');
-    const queryDetails = $('#api-spy-panel #details-container #details-panel #query-details');
+    const queryDetails = $('#api-spy-panel #details-container #details-panel #query-details-container');
 
     const apiDuration = apiSpyResponseData.apiSpyRequestDetails.timing.durationInMilliseconds;
     const overallStart = new Date(apiSpyResponseData.startTime);
@@ -196,7 +196,7 @@ function renderDetailsPanel(apiSpyResponseData) {
                 0
             );
             const queryDurationAsPercentageOfTotal = Math.round(
-                Math.ceil(((durationBetweenOverallStartAndApiStart + query.queryDuration) / overallDuration) * 100),
+                Math.ceil((query.queryDuration / overallDuration) * 100),
                 2
             );
             const requestQueryUriCell = $(`<td class='name link-button'>${query.name}</td>`);
@@ -247,7 +247,7 @@ function renderDetailsPanel(apiSpyResponseData) {
  */
 function renderQueryDetails(request, query) {
 
-    const queryDetails = $('#api-spy-panel #details-container #details-panel #query-details');
+    const queryDetails = $('#api-spy-panel #details-container #details-panel #query-details-container');
     const overallStart = new Date(request.startTime);
     const overallDuration = request.requestDuration;
     const queryStart = new Date(query.queryStart);

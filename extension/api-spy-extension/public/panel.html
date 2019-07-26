@@ -173,10 +173,6 @@
         display: inline-block;
     }
 
-    #query-details {
-        display: none;
-    }
-
     #debug-panel,
     #query-details .property.query-code>pre,
     #query-details .property.query-stats>pre {
@@ -202,7 +198,8 @@
         margin-top: 25px;
     }
 
-    #details-panel>h2 {
+    #details-panel>h2,
+    #details-panel #query-details-container>h2 {
         border-bottom: solid 1px #525252;
         margin-bottom: 8px;
     }
@@ -281,31 +278,33 @@
                 <div id='gantt-chart-container'>
                 </div>
 
-                <h2>Query Details</h2>
-                <div id='query-details'>
-                    <div class="property query-name">
-                        <label>Query Name</label>
-                        <div></div>
-                    </div>
-                    <div class="property query-start">
-                        <label>Started</label>
-                        <div></div>
-                    </div>
-                    <div class="property query-duration">
-                        <label>Duration</label>
-                        <div></div>
-                    </div>
-                    <div class="property query-from-cache">
-                        <label>From Cache</label>
-                        <div></div>
-                    </div>
-                    <div class="property query-code">
-                        <label>Code</label>
-                        <pre></pre>
-                    </div>
-                    <div class="property query-stats">
-                        <label>Query Statistics (at time of caching)</label>
-                        <pre></pre>
+                <div id='query-details-container'>
+                    <h2>Query Details</h2>
+                    <div id='query-details'>
+                        <div class="property query-name">
+                            <label>Query Name</label>
+                            <div></div>
+                        </div>
+                        <div class="property query-start">
+                            <label>Started</label>
+                            <div></div>
+                        </div>
+                        <div class="property query-duration">
+                            <label>Duration</label>
+                            <div></div>
+                        </div>
+                        <div class="property query-from-cache">
+                            <label>From Cache</label>
+                            <div></div>
+                        </div>
+                        <div class="property query-code">
+                            <label>Code</label>
+                            <pre></pre>
+                        </div>
+                        <div class="property query-stats">
+                            <label>Query Statistics (at time of caching)</label>
+                            <pre></pre>
+                        </div>
                     </div>
                 </div>
 
