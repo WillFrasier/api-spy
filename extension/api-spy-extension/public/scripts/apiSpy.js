@@ -27,26 +27,41 @@
             return v.toString(16);
         });
     }
+
+    /**
+     * Returns the current request for the specified details
+     * Will return null if it doesn't exist
+     */
+    function getRequest(details) {
+        const { tabId, requestId } = details;
+        if (tabStorage[tabId] && tabStorage[tabId].requests[requestId]) {
+            return tabStorage[tabId].requests[requestId];
+        } else {
+            return null;
+        }
+    }
+
     /**
      * Saves the current request to tab storage and returns the object
      */
-    function ensureRequestExists(details) {
+    function registerRequest(details) {
         const { tabId, requestId } = details;
         if (!details || !tabId || !requestId) {
             return;
         }
+        const startTime = new Date().getTime();
         if (!tabStorage[tabId]) {
             tabStorage[tabId] = {
                 id: tabId,
                 requests: {},
-                registerTime: new Date().getTime()
+                registerTime: startTime
             };
         }
         tabStorage[tabId].requests[requestId] = {
             tabId: tabId,
             requestId: requestId,
             url: details.url,
-            startTime: details.timeStamp,
+            startTime: startTime,
             status: 'pending'
         };
     }
@@ -54,20 +69,27 @@
      * Sends the specified request to the dev tools panel via [extension messaging](https://developers.chrome.com/extensions/messaging)
      */
     function invokeSendMessage(requestToSend, reason) {
-        // TODO... 
         const message = {
             reason: reason,
             request: requestToSend
         };
+        console.log(`[ApiSpy.invokeSendMessage] Sending request (startTime: ${requestToSend.startTime}; endTime: ${requestToSend.endTime}; requestDuration: ${requestToSend.requestDuration})`);
+
         // send message
         host.runtime.sendMessage(
-            message, 
+            message,
             (response) => {
                 console.log(`[ApiSpy.invokeSendMessage] Message received: ${JSON.stringify(response)}`);
             }
         );
-
     }
+
+    host.webRequest.onBeforeRequest.addListener(
+        function (details) {
+            registerRequest(details);
+        },
+        { urls: ["<all_urls>"] },
+        []);
 
     /**
      * Occurs before sending request headers, adds the Api Spy request
@@ -76,20 +98,21 @@
     host.webRequest.onBeforeSendHeaders.addListener(
         function (details) {
             const { tabId, requestId } = details;
-            ensureRequestExists(details);
             const requestGuid = generateGuid();
-            tabStorage[tabId].requests[requestId].requestGuid = requestGuid;
-            const apiSpyHeader = details.requestHeaders.find(header => {
-                return header.name === apiSpyHeaderName;
-            });
-            if (!apiSpyHeader) {
-                details.requestHeaders.push({
-                    name: apiSpyHeaderName,
-                    value: requestGuid
-                })
+            const request = getRequest(details);
+            if (request) {
+                tabStorage[tabId].requests[requestId].requestGuid = requestGuid;
+                const apiSpyHeader = details.requestHeaders.find(header => {
+                    return header.name === apiSpyHeaderName;
+                });
+                if (!apiSpyHeader) {
+                    details.requestHeaders.push({
+                        name: apiSpyHeaderName,
+                        value: requestGuid
+                    })
+                }
+                return { requestHeaders: details.requestHeaders };
             }
-
-            return { requestHeaders: details.requestHeaders };
         },
         { urls: ["<all_urls>"] },
         ["blocking", "requestHeaders"]);
@@ -102,7 +125,6 @@
     host.webRequest.onResponseStarted.addListener(
         function (details) {
             const { tabId, requestId } = details;
-            ensureRequestExists(details);
 
             if (!details.responseHeaders) {
                 console.log(`[ApiSpy.onResponseStarted] No response headers returned for: ${details.url}`);
@@ -118,9 +140,11 @@
                 delete tabStorage[tabId].requests[requestId];
                 return;
             }
-
-            tabStorage[tabId].requests[requestId].incomingApiSpyHeader = incomingApiSpyHeader.value;
-            console.log(`[ApiSpy] Api Response Acquired: ${details.url}`);
+            const request = getRequest(details);
+            if (request) {
+                tabStorage[tabId].requests[requestId].incomingApiSpyHeader = incomingApiSpyHeader.value;
+                console.log(`[ApiSpy] Api Response Acquired: ${details.url}`);
+            }
         },
         { urls: ["<all_urls>"] },
         ["extraHeaders", "responseHeaders"]);
@@ -128,30 +152,27 @@
     /**
      * Occurs at the start of a request. Registers the request with the central store
      */
-    host.webRequest.onBeforeSendHeaders.addListener((details) => {
-        ensureRequestExists(details);
-    }, networkFilters);
-
     host.webRequest.onCompleted.addListener((details) => {
         const { tabId, requestId } = details;
-        
-        if(tabStorage[tabId] && tabStorage[tabId].requests[requestId]) {
+        const request = getRequest(details);
+        if (request) {
             // we will only have a registry if we have received
             // the proper header. Otherwise the entry will be deleted
             // to save memory in function onResponseStarted
-            const request = tabStorage[tabId].requests[requestId];
-
-            if(request.incomingApiSpyHeader) {
+            const endTime = new Date().getTime();
+            const requestDuration = moment(endTime).diff(moment(request.startTime))
+            if (request.incomingApiSpyHeader) {
                 Object.assign(request, {
-                    endTime: details.timeStamp,
-                    requestDuration: details.timeStamp - request.startTime,
+                    endTime: endTime,
+                    requestDuration: requestDuration,
+                    method: details.method,
+                    statusCode: details.statusCode,
                     status: 'complete'
                 });
+                tabStorage[tabId].requests[requestId] = request;
                 invokeSendMessage(request, 'complete');
             }
         }
-        
-
     }, networkFilters);
 
     /**
@@ -159,16 +180,21 @@
      */
     host.webRequest.onErrorOccurred.addListener((details) => {
         const { tabId, requestId } = details;
-        ensureRequestExists(details);
-
-        const request = tabStorage[tabId].requests[requestId];
-        Object.assign(request, {
-            endTime: details.timeStamp,
-            requestDuration: details.timeStamp - request.startTime,
-            status: 'error',
-        });
+        const request = getRequest(details);
+        if (request) {
+            const endTime = new Date().getTime();
+            Object.assign(request, {
+                endTime: endTime,
+                requestDuration: endTime - request.startTime,
+                status: 'error',
+            });
+            tabStorage[tabId].requests[requestId] = request;
+        }
     }, networkFilters);
 
+    /**
+     * Occurs when new tab is activated
+     */
     host.tabs.onActivated.addListener((tab) => {
         const tabId = tab ? tab.tabId : host.tabs.TAB_ID_NONE;
         if (!tabStorage.hasOwnProperty(tabId)) {
@@ -179,6 +205,9 @@
             };
         }
     });
+    /**
+     * Occurs when tab is removed
+     */
     host.tabs.onRemoved.addListener((tab) => {
         const tabId = tab.tabId;
         if (!tabStorage.hasOwnProperty(tabId)) {

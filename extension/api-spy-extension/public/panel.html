@@ -17,6 +17,7 @@
     h4 {
         font-family: 'Segoe UI Light', Tahoma, Geneva, Verdana, sans-serif;
         font-weight: normal;
+        margin: 0;
     }
 
     a,
@@ -36,6 +37,40 @@
         padding: 0;
     }
 
+    #panel-root {
+        /*
+            Columns: 
+            1: Requests Panel
+            2: Details Panel
+
+            Rows: 
+            1: Header
+            2: Requests andand Details Panel
+        */
+        display: grid;
+        /* Set 100 columns here so we can easily assign columns in percentages */
+        grid-template-columns: minmax(500px, max-content) auto;
+        grid-template-rows: max-content auto;
+
+    }
+
+    #panel-root #header {
+        grid-row: 1;
+        grid-column: 1 / 3;
+        /* span to end */
+    }
+
+    #panel-root #requests-container {
+        grid-row: 2;
+        grid-column: 1;
+        padding-right: 24px;
+    }
+
+    #panel-root #details-container {
+        grid-row: 2;
+        grid-column: 2;
+    }
+
     #requests-table {
         border-collapse: collapse;
     }
@@ -53,8 +88,13 @@
         background-color: transparent;
         transition: background-color 75ms ease-in-out;
     }
+
     #requests-table tbody tr:hover {
         background-color: #323232;
+    }
+
+    #requests-table tbody td {
+        cursor: default;
     }
 
     #requests-table tbody td.request-uri {
@@ -95,10 +135,10 @@
     }
 
     #gantt-chart-container .gantt-background {
-        background-color: #868686;
+        background-color: #333333;
         grid-column: 4 / none;
         /* Indicates that this should span from 5th columns to the end */
-        border: solid 1px #aaaaaa;
+        border: solid 1px #444444;
     }
 
     #gantt-chart-container .gantt-bar {
@@ -115,15 +155,64 @@
     .loading-container {
         display: none;
     }
+
+    .font-color-good {
+        color: rgb(62, 202, 92);
+    }
+
+    .font-color-bad {
+        color: rgb(255, 45, 45);
+    }
+
+    .property>label {
+        min-width: 200px;
+        display: inline-block;
+    }
+
+    .property>div {
+        display: inline-block;
+    }
+
+    #query-details {
+        display: none;
+    }
+
+    #debug-panel,
+    #query-details .property.query-code>pre,
+    #query-details .property.query-stats>pre {
+        font-family: 'Segoe Mono Boot', 'Consolas', 'Courier New', monospace;
+        color: white;
+        font-size: 0.99em;
+        word-break: break-all;
+        white-space: pre-wrap;
+    }
+
+    #query-details .property.query-code>pre,
+    #query-details .property.query-stats>pre {
+        margin-left: 48px;
+    }
+
+    #details-panel {
+        border-left: solid 1px #373737;
+        padding-left: 24px;
+        display: none;
+    }
+
+    #details-panel>h2:not(:first-child) {
+        margin-top: 25px;
+    }
+
+    #details-panel>h2 {
+        border-bottom: solid 1px #525252;
+        margin-bottom: 8px;
+    }
 </style>
 <script src="scripts/jquery-3.4.1.min.js"></script>
 
 <body id='api-spy-panel'>
-
-
     <div id='panel-root'>
 
-        <div>
+        <div id='header'>
             <h2>Api Spy</h2>
             <p>
                 Api Spy is an api debugger for node. For more information on how to set up and use this tool check out
@@ -156,11 +245,74 @@
 
             <div id='details-panel'>
 
-                <h2>Request Details</h2>
-
-                <div id='gantt-chart-container'>
-
+                <h2>Summary</h2>
+                <div id='request-summary'>
+                    <div class="property request-id">
+                        <label>Request Id</label>
+                        <div></div>
+                    </div>
+                    <div class="property uri">
+                        <label>Url</label>
+                        <div></div>
+                    </div>
+                    <div class="property overall-time">
+                        <label>Overall Time (fetch + api)</label>
+                        <div></div>
+                    </div>
+                    <div class="property api-time">
+                        <label>Api Time</label>
+                        <div></div>
+                    </div>
+                    <div class="property queries-total">
+                        <label>Queries</label>
+                        <div></div>
+                    </div>
+                    <div class="property queries-cached">
+                        <label>Queries (Cached)</label>
+                        <div></div>
+                    </div>
+                    <div class="property queries-not-cached">
+                        <label>Queries (Not Cached)</label>
+                        <div></div>
+                    </div>
                 </div>
+
+                <h2>Request Timing</h2>
+                <div id='gantt-chart-container'>
+                </div>
+
+                <h2>Query Details</h2>
+                <div id='query-details'>
+                    <div class="property query-name">
+                        <label>Query Name</label>
+                        <div></div>
+                    </div>
+                    <div class="property query-start">
+                        <label>Started</label>
+                        <div></div>
+                    </div>
+                    <div class="property query-duration">
+                        <label>Duration</label>
+                        <div></div>
+                    </div>
+                    <div class="property query-from-cache">
+                        <label>From Cache</label>
+                        <div></div>
+                    </div>
+                    <div class="property query-code">
+                        <label>Code</label>
+                        <pre></pre>
+                    </div>
+                    <div class="property query-stats">
+                        <label>Query Statistics (at time of caching)</label>
+                        <pre></pre>
+                    </div>
+                </div>
+
+
+                <!-- <h2>Debug Only</h2>
+                <pre id='debug-panel'>
+                </pre> -->
 
             </div>
 
