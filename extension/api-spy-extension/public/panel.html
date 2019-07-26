@@ -203,6 +203,16 @@
         border-bottom: solid 1px #525252;
         margin-bottom: 8px;
     }
+
+    #header #logo {
+        height: 100px;
+        width: 100px;
+        float: left;
+    }
+
+    #requests-container {
+        display: none;
+    }
 </style>
 <script src="scripts/jquery-3.4.1.min.js"></script>
 
@@ -210,14 +220,19 @@
     <div id='panel-root'>
 
         <div id='header'>
-            <h2>Api Spy</h2>
-            <p>
-                Api Spy is an api debugger for node. For more information on how to set up and use this tool check out
-                the <a href="https://github.com/willfrasier/api-spy#readme" target="_blank">wiki</a>.
-            </p>
-            <p>
-                Select a request below to see the back end api characteristics.
-            </p>
+            <div>
+                <img src='./api-spy.png' id='logo' alt="Api Spy">
+                <h1>Api Spy</h1>
+                <p>
+                    Api Spy is an api debugger for node. For more information on how to set up and use this tool check
+                    out the <a href="https://github.com/willfrasier/api-spy#readme" target="_blank">wiki</a>.
+                </p>
+                <p>
+                    Don't see anything below? Please check out the <a
+                        href="https://github.com/willfrasier/api-spy#readme" target="_blank">wiki</a> on getting your
+                    server set up. Navigate to a api spy enabled page to see the back end api request details.
+                </p>
+            </div>
         </div>
 
         <div id='requests-container'>

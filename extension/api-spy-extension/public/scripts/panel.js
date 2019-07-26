@@ -279,9 +279,11 @@ function renderQueryDetails(request, query) {
 }
 
 /**
- * Renders the current table
+ * Renders the requests table
  */
 function renderTable() {
+
+    const requestsContainer = $('#api-spy-panel #requests-container');
 
     // query for the active tab so that we only render the requests for the currently selected tab
     panelDevToolsHost.tabs.query({
@@ -296,7 +298,7 @@ function renderTable() {
         const table = $('#api-spy-panel #requests-container #requests-table');
         const tbody = $('#api-spy-panel #requests-container #requests-table tbody');
         const requestStoreClone = requestStore
-            //.filter(r => r.tabId === currentTab.id)
+            .filter(r => r.tabId === currentTab.id)
             .slice(0, maxNumberOfRequestsToRender);
 
         if (requestStoreClone && requestStoreClone.length > 0) {
@@ -320,12 +322,13 @@ function renderTable() {
                     .append($(`<td>${request.requestDuration}</td>`))
                 );
             });
+            requestsContainer.show();
             table.show();
         } else {
             // hide table
+            requestsContainer.hide();
             table.hide();
         }
-
     });
 }
 
