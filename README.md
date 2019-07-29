@@ -1,20 +1,6 @@
 # api-spy
-An api route debugger built into the browser
+Api Spy is a node debugger built into the browser. The goal is to minimize the time to find and debug slow backend requests by showing the graph of what database calls were made for each request. This is done live so that you can load up the Api Spy debugger and see the requests as they come in.  
 
 ## Status
-This is a test project and should not be consumed at this point
+This project is a work in progress.
 
-## Work Items
-### Server
-- [ ] Server apis to store web events
-- [ ] Requiest Id Management
-- [ ] Caching (default using redis)
-
-### Client
-- [ ] Create extension infra
-- [ ] Hook into [Chrome Web Request](https://developer.chrome.com/extensions/webRequest)
-- [ ] UI to display the routes
-
- ### Misc
- - [ ] Docs / Usage Guide
- - [ ] publish to npm
