@@ -8,6 +8,7 @@ import { run, getRequestId, _activeContext } from './context.js'
 export { run, getRequestId, _activeContext }
 export { track } from './track.js'
 export { express as expressMiddleware } from './express.js'
+export { createInMemoryStore } from './store.js'
 
 /** @type {import('./store.js').Store} */
 let _store = createInMemoryStore()
