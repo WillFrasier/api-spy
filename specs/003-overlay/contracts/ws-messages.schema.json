@@ -1,0 +1,101 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://api-spy.dev/schemas/ws-messages.schema.json",
+  "title": "api-spy WebSocket message contract",
+  "description": "Every frame on the api-spy /api/v1/apiSpyControl WebSocket must conform to this schema. Frames are discriminated by the `type` field.",
+  "type": "object",
+  "required": ["type"],
+  "oneOf": [
+    {
+      "type": "object",
+      "required": ["type", "requestId", "query"],
+      "properties": {
+        "type": { "const": "query" },
+        "requestId": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+        },
+        "query": { "$ref": "#/$defs/query" }
+      },
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "required": ["type", "requestId", "status", "durationInMilliseconds"],
+      "properties": {
+        "type": { "const": "request-complete" },
+        "requestId": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+        },
+        "status": { "type": "string", "enum": ["ok", "error"] },
+        "durationInMilliseconds": { "type": "number", "minimum": 0 }
+      },
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "required": ["type", "t"],
+      "properties": {
+        "type": { "const": "ping" },
+        "t": { "type": "number", "minimum": 0 }
+      },
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "required": ["type", "t"],
+      "properties": {
+        "type": { "const": "pong" },
+        "t": { "type": "number", "minimum": 0 }
+      },
+      "additionalProperties": false
+    }
+  ],
+  "$defs": {
+    "query": {
+      "type": "object",
+      "required": [
+        "id",
+        "name",
+        "parentQueryId",
+        "startTime",
+        "endTime",
+        "durationInMilliseconds",
+        "status",
+        "error",
+        "metadata"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+        },
+        "name": { "type": "string", "minLength": 1 },
+        "parentQueryId": {
+          "type": ["string", "null"],
+          "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$|^$"
+        },
+        "startTime": { "type": "string", "format": "date-time" },
+        "endTime": { "type": ["string", "null"], "format": "date-time" },
+        "durationInMilliseconds": { "type": "number", "minimum": 0 },
+        "status": { "type": "string", "enum": ["ok", "error"] },
+        "error": {
+          "type": ["object", "null"],
+          "required": ["name", "message", "stack"],
+          "properties": {
+            "name": { "type": "string" },
+            "message": { "type": "string" },
+            "stack": { "type": "string" }
+          },
+          "additionalProperties": false
+        },
+        "metadata": {
+          "type": ["object", "null"],
+          "additionalProperties": true
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}
