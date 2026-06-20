@@ -32,12 +32,18 @@ const storage = new AsyncLocalStorage()
  * generated UUID) is preserved across all awaits, setTimeouts, microtasks,
  * and nested calls.
  *
+ * If `opts.id` is provided, it is used instead of generating a new UUID.
+ * This is how the Express middleware shares its pre-generated request id
+ * with the run() context, so the X-ApiSpy-RequestId response header and
+ * apiSpy.getRequestId() inside handlers refer to the same id.
+ *
  * @template T
  * @param {() => T | Promise<T>} fn
+ * @param {{ id?: string }} [opts]
  * @returns {Promise<T>}
  */
-export function run (fn) {
-  const id = randomUUID()
+export function run (fn, opts = {}) {
+  const id = opts.id || randomUUID()
   const startTimeMs = Date.now()
   /** @type {RequestContext} */
   const ctx = {
