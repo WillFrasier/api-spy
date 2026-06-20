@@ -67,10 +67,6 @@ import * as apiSpy from 'api-spy'
 
 const app = express()
 app.use(apiSpy.expressMiddleware())              // open a request context
-app.use((req, res, next) => {                    // expose the debugger
-  res.locals.apiSpy = apiSpy
-  next()
-})
 
 app.get('/users/:id', async (req, res, next) => {
   try {
@@ -85,7 +81,7 @@ app.get('/users/:id', async (req, res, next) => {
 })
 
 app.get('/api/v1/apiDebugger/:id', (req, res) => {
-  const record = res.locals.apiSpy._store().get(req.params.id)
+  const record = apiSpy._store().get(req.params.id)
   if (!record) return res.status(404).json({ error: 'not_found', requestId: req.params.id })
   res.json({
     requestId: record.id,
@@ -138,7 +134,7 @@ api-spy/
 - `apiSpy.expressMiddleware()` — request context + `X-ApiSpy-RequestId` header + auto-save on response finish
 - `apiSpy._store()` / `init({ store })` — in-memory LRU store (default 1000 records), swappable
 - `examples/demo-app` — three-call instrumented Express app with tests
-- 55 tests across 3 suites, ~1.5s end-to-end (see `specs/001-phase1-sdk-foundation/test-transcript.md`)
+- 58 tests across 3 suites, ~1.5s end-to-end (see `specs/001-phase1-sdk-foundation/test-transcript.md`)
 
 **Deferred to follow-on specs:**
 - **Chrome DevTools panel (MV3)** — the original extension is in `legacy/`; the rewrite is the next deliverable
@@ -153,7 +149,7 @@ api-spy/
 # SDK (49 tests: unit + contract + integration)
 cd packages/api-spy && npm run test:all
 
-# Demo app (6 tests: end-to-end + SC-004 100-concurrent stress)
+# Demo app (9 tests: end-to-end + SC-004 100-concurrent + doc-snippet validation)
 cd ../../examples/demo-app && npm test
 ```
 

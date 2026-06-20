@@ -207,6 +207,9 @@ npm run test:all          # everything
 
 49 tests across 3 suites, all green.
 
+The example app under `examples/demo-app` adds another 9 integration
+tests that exercise the public API end-to-end.
+
 ## License
 
 ISC
