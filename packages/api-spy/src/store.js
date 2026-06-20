@@ -50,8 +50,8 @@ export function createInMemoryStore (opts = {}) {
 
   return {
     save (record) {
-      if (!record || typeof record.id !== 'string') {
-        throw new TypeError('[api-spy] store.save() requires a record with a string id')
+      if (!record || typeof record.id !== 'string' || record.id.length === 0) {
+        throw new TypeError('[api-spy] store.save() requires a record with a non-empty string id')
       }
       // Saving an existing id should update the value AND bump it to most-recent.
       if (map.has(record.id)) map.delete(record.id)

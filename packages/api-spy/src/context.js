@@ -6,6 +6,7 @@ import { randomUUID } from 'node:crypto'
 import { bindContextAccessor } from './log.js'
 
 const storage = new AsyncLocalStorage()
+bindContextAccessor(() => storage.getStore() || null)
 
 /**
  * @typedef {Object} ActiveQuery
@@ -25,7 +26,23 @@ const storage = new AsyncLocalStorage()
  * @property {number} startTimeMs               ms since epoch (for fast arithmetic)
  * @property {Array<import('./track.js').Query>} queries
  * @property {Array<ActiveQuery>} openQueries   stack of unfinished track() calls
+ * @property {Record<string, unknown>|null} [metadata]    request-level metadata
+ * @property {object} [_bracket]                internal — set by startRequest() so endRequest() can identify its own ctx
  */
+
+/**
+ * Accessor for the underlying AsyncLocalStorage. Used by bracket.js's
+ * startRequest() to enter its ctx through the same ALS as run(), so
+ * run() correctly refuses to nest inside a bracket request and
+ * getRequestId() / _activeContext() see both forms uniformly.
+ *
+ * NOT exported from index.js.
+ *
+ * @returns {AsyncLocalStorage<any>}
+ */
+export function getStorage () {
+  return storage
+}
 
 /**
  * Run `fn` inside a fresh request context. The context (including the
@@ -43,6 +60,12 @@ const storage = new AsyncLocalStorage()
  * @returns {Promise<T>}
  */
 export function run (fn, opts = {}) {
+  // run() inside an already-active request: just execute fn in the
+  // existing context. This preserves the existing Phase 1 contract
+  // where a route handler can call run() to assert the request id
+  // even though the express middleware already opened the scope.
+  // The bracket API's startRequest()/endRequest() is the one that
+  // refuses to nest — see bracket.js for the rule that applies there.
   const id = opts.id || randomUUID()
   const startTimeMs = Date.now()
   /** @type {RequestContext} */
@@ -53,8 +76,6 @@ export function run (fn, opts = {}) {
     queries: [],
     openQueries: []
   }
-  // bindContextAccessor lets log.js pick up the active context for [api-spy] logs.
-  bindContextAccessor(() => storage.getStore() || null)
   return Promise.resolve(storage.run(ctx, fn))
 }
 

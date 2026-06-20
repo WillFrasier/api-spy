@@ -1,19 +1,28 @@
 # api-spy
 
-A Node SDK that captures the **call graph** of slow backend operations —
-HTTP, database, LLM — for each incoming request, and exposes it as JSON
-over an `/apiDebugger/:id` endpoint that a future browser debugger (or
-`curl`) can inspect.
+Instrument the backend calls your API makes — DB, HTTP, LLM — and watch them on a live Gantt chart inside your app.
 
-## Why
+![api-spy overlay](./api-spy.png)
 
-Seeing the API call graph in the browser is good. But seeing the calls that the API makes is essential. Which database calls are taking the longest? What calls are happening in parallel? How many tokens are being sent to the LLM, and how much did the request cost?
+## What it is
 
-The goal of api-spy is to provide a small component that can be added to any Node.js application to help you understand the external calls that are being made from within the api layer.
+- An Express middleware + `track()` helper that records every call your handler makes.
+- A React component (`<ApiSpyOverlay />`) that floats in the corner of the page and shows the call graph as it fills in.
+- A `/apiDebugger/:id` endpoint that returns the full call tree as JSON.
+
+The goal: know what the API is doing, without adding logging everywhere.
 
 ## Install
 
-### Server
+```bash
+npm install api-spy api-spy-overlay-react ws
+```
+
+`ws` is an optional peer dep — only needed if you want the live overlay. The debugger endpoint works without it.
+
+## Usage
+
+### Server — instrument a route
 
 ```js
 import express from "express";
@@ -21,47 +30,51 @@ import * as apiSpy from "api-spy";
 
 const app = express();
 app.use(apiSpy.expressMiddleware()); // open a request context
+apiSpy.wsHandler({ path: "/api/v1/apiSpyControl" }); // optional, for the overlay
 
-app.get("/users/:id", async (req, res, next) => {
+app.get("/users/:id", async (req, res) => {
   const user = await apiSpy.track(
-    "db.users.findById", // unique name for the call
-    () => db.findUser(req.params.id), // the call to make
-    { metadata: { table: "users", id: req.params.id } }, // optional metadata to attach to the call
+    "db.users.findById",
+    () => db.findUser(req.params.id),
+    { metadata: { table: "users", id: req.params.id } },
   );
   res.json(user);
 });
-
-app.listen(3000);
 ```
 
-Requirements on server setup:
+### Client — mount the overlay
 
-{Fill this in once we have a spec}
+```jsx
+import { ApiSpyOverlay } from "api-spy-overlay-react";
 
-### Client
-
-```js
-import { ApiSpyOverlay } from 'api-spy-overlay-react'
 export function App() {
   return (
     <>
       <YourStuff />
-      {/* Enable the overlay to see the call graph */}
       <ApiSpyOverlay position="bottom-right" />
     </>
-  )
+  );
 }
 ```
 
+Hit a route and the overlay fills in the Gantt chart for that request in real time.
 
+## Demo
 
+```bash
+cd examples/demo-app
+npm install
+npm run dev
+```
+
+Then open the printed Vite URL. The page has buttons for serial, parallel, nested, slow, errored, and LLM fan-out scenarios.
 
 ## Contributing
 
-See `specs/001-phase1-sdk-foundation/spec.md` for the SDK foundation, and
-`specs/003-overlay/spec.md` for the in-page debug overlay (React component +
-WebSocket-driven live Gantt). PRs that touch the public API should add a
-test under `tests/contract/`.
+- `specs/001-phase1-sdk-foundation/spec.md` — SDK contract.
+- `specs/003-overlay/spec.md` — overlay + WebSocket contract.
+
+PRs that touch the public API need a test under `tests/contract/`.
 
 ## License
 

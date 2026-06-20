@@ -1,15 +1,20 @@
 // T012 — public SDK surface.
-// Public API: run, track, getRequestId, init, express, _store
+// Public API: run, track, getRequestId, init, express, _store,
+//   start, end, startRequest, endRequest
 // Contract: data-model.md §API Surface, spec.md §FR-001
 
 import { createInMemoryStore } from './store.js'
 import { run, getRequestId, _activeContext } from './context.js'
 import { setOnQuery, _reset as _resetOnQueryForTests } from './onQuery.js'
 
-export { run, getRequestId, _activeContext }
+export { run, getRequestId, _activeContext } from './context.js'
 export { track } from './track.js'
 export { express as expressMiddleware } from './express.js'
 export { createInMemoryStore } from './store.js'
+// Imperative bracket sibling of track() — start/end for queries,
+// startRequest/endRequest as an alternative to run(fn). See
+// packages/api-spy/src/bracket.js for the contract.
+export { start, end, startRequest, endRequest } from './bracket.js'
 
 /** @type {import('./store.js').Store} */
 let _store = createInMemoryStore()
