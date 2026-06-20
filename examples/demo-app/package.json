@@ -1,0 +1,21 @@
+{
+  "name": "api-spy-demo-app",
+  "version": "0.1.0",
+  "description": "Reference Express app demonstrating the api-spy SDK end-to-end.",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "demo": "node src/server.js",
+    "test": "node --test --test-reporter=spec 'tests/**/*.test.js'"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "api-spy": "file:../../packages/api-spy",
+    "express": "^4.21.1"
+  },
+  "devDependencies": {
+    "supertest": "^7.0.0"
+  }
+}

@@ -1,0 +1,89 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/WillFrasier/api-spy/contracts/api-debugger-response.schema.json",
+  "title": "api-spy debugger response",
+  "description": "Shape returned by GET /api/v1/apiDebugger/:id on success",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["requestId", "timing", "queries"],
+  "properties": {
+    "requestId": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+    },
+    "timing": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["startTime", "endTime", "durationInMilliseconds"],
+      "properties": {
+        "startTime": { "type": "string", "format": "date-time" },
+        "endTime": { "type": ["string", "null"], "format": "date-time" },
+        "durationInMilliseconds": { "type": "integer", "minimum": 0 }
+      }
+    },
+    "queries": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/query" }
+    },
+    "error": {
+      "oneOf": [
+        { "type": "null" },
+        { "$ref": "#/$defs/error" }
+      ]
+    }
+  },
+  "$defs": {
+    "query": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "name",
+        "parentQueryId",
+        "startTime",
+        "endTime",
+        "durationInMilliseconds",
+        "status"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+        },
+        "name": { "type": "string", "minLength": 1 },
+        "parentQueryId": {
+          "oneOf": [
+            { "type": "null" },
+            { "type": "string" }
+          ]
+        },
+        "startTime": { "type": "string", "format": "date-time" },
+        "endTime": { "type": ["string", "null"], "format": "date-time" },
+        "durationInMilliseconds": { "type": "integer", "minimum": 0 },
+        "status": { "enum": ["ok", "error", "incomplete"] },
+        "error": {
+          "oneOf": [
+            { "type": "null" },
+            { "$ref": "#/$defs/error" }
+          ]
+        },
+        "metadata": {
+          "oneOf": [
+            { "type": "null" },
+            { "type": "object" }
+          ]
+        }
+      }
+    },
+    "error": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "message", "stack"],
+      "properties": {
+        "name": { "type": "string" },
+        "message": { "type": "string" },
+        "stack": { "type": "string" }
+      }
+    }
+  }
+}

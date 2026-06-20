@@ -1,0 +1,47 @@
+{
+  "name": "api-spy",
+  "version": "0.1.0",
+  "description": "Lightweight Node SDK for instrumenting slow backend operations (HTTP, DB, LLM) and surfacing the request tree in a browser debugger.",
+  "type": "module",
+  "main": "./src/index.js",
+  "exports": {
+    ".": "./src/index.js"
+  },
+  "files": [
+    "src/",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "test": "node --test --test-reporter=spec 'tests/unit/**/*.test.js' 'tests/contract/**/*.test.js'",
+    "test:integration": "node --test --test-reporter=spec 'tests/integration/**/*.test.js'",
+    "test:all": "node --test --test-reporter=spec 'tests/**/*.test.js'"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "keywords": [
+    "observability",
+    "debugger",
+    "instrumentation",
+    "performance",
+    "tracing",
+    "api",
+    "llm"
+  ],
+  "author": "Will Frasier",
+  "license": "ISC",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/WillFrasier/api-spy.git",
+    "directory": "packages/api-spy"
+  },
+  "bugs": {
+    "url": "https://github.com/WillFrasier/api-spy/issues"
+  },
+  "devDependencies": {
+    "ajv": "^8.17.1",
+    "ajv-formats": "^3.0.1",
+    "supertest": "^7.0.0"
+  }
+}

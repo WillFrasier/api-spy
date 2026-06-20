@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/WillFrasier/api-spy/contracts/api-debugger-error.schema.json",
+  "title": "api-spy debugger error response",
+  "description": "Shape returned by GET /api/v1/apiDebugger/:id when the id is invalid or unknown",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["error"],
+  "properties": {
+    "error": {
+      "type": "string",
+      "enum": ["not_found", "bad_request"]
+    },
+    "requestId": { "type": "string" },
+    "reason": { "type": "string" }
+  }
+}

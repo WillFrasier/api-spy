@@ -1,0 +1,44 @@
+{
+  "requestId": "5b1f3c8e-2c4a-4f0e-9a4d-1a2b3c4d5e6f",
+  "timing": {
+    "startTime": "2026-06-19T19:30:00.100Z",
+    "endTime": "2026-06-19T19:30:00.158Z",
+    "durationInMilliseconds": 58
+  },
+  "error": null,
+  "queries": [
+    {
+      "id": "11111111-1111-4111-8111-111111111111",
+      "name": "db.users.findById",
+      "parentQueryId": null,
+      "startTime": "2026-06-19T19:30:00.105Z",
+      "endTime": "2026-06-19T19:30:00.118Z",
+      "durationInMilliseconds": 13,
+      "status": "ok",
+      "error": null,
+      "metadata": null
+    },
+    {
+      "id": "22222222-2222-4222-8222-222222222222",
+      "name": "http.fetch.upstream",
+      "parentQueryId": null,
+      "startTime": "2026-06-19T19:30:00.119Z",
+      "endTime": "2026-06-19T19:30:00.142Z",
+      "durationInMilliseconds": 23,
+      "status": "ok",
+      "error": null,
+      "metadata": { "url": "https://api.example.com/profile" }
+    },
+    {
+      "id": "33333333-3333-4333-8333-333333333333",
+      "name": "llm.gpt-4o-mini.chat",
+      "parentQueryId": null,
+      "startTime": "2026-06-19T19:30:00.143Z",
+      "endTime": "2026-06-19T19:30:00.155Z",
+      "durationInMilliseconds": 12,
+      "status": "ok",
+      "error": null,
+      "metadata": { "model": "gpt-4o-mini", "tokensIn": 142, "tokensOut": 58 }
+    }
+  ]
+}
