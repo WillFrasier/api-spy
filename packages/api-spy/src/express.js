@@ -18,6 +18,7 @@
 import { randomUUID } from 'node:crypto'
 import { run, _activeContext } from './context.js'
 import { _store } from './index.js'
+import { emitRequestComplete } from './wsHandler.js'
 
 const HEADER_NAME = 'X-ApiSpy-RequestId'
 
@@ -51,16 +52,31 @@ export function express () {
 
       const ctx = _activeContext()
       if (!ctx) return
-      finalizeAndSave(ctx, handlerError)
+      finalizeAndSave(ctx, handlerError, res.statusCode)
     }, { id }).catch(() => { /* defensive — should not happen */ })
   }
 }
 
-function finalizeAndSave (ctx, err) {
+function finalizeAndSave (ctx, err, statusCode) {
   const endTimeMs = Date.now()
   ctx.endTime = new Date(endTimeMs).toISOString()
   ctx.durationInMilliseconds = endTimeMs - ctx.startTimeMs
-  ctx.status = err ? 'error' : 'ok'
+  // Aggregate child query statuses: any errored child promotes the
+  // request to status='error', even if the HTTP layer handled the error
+  // gracefully (Express error middleware, etc.). This is the right
+  // signal for the user — if a backend call failed, the request is
+  // "error" from the developer's perspective, even if the API itself
+  // returned a 5xx. The Gantt shows the actual offender.
+  //
+  // Also: a 4xx/5xx HTTP response status, even with zero queries (e.g.
+  // an auth guard that fails before any backend call), means the request
+  // failed from the user's perspective. Mirror that into status='error'.
+  const hasErroredChild = (ctx.queries || []).some((q) => q && q.status === 'error')
+  const httpFailed = typeof statusCode === 'number' && statusCode >= 400
+  if (err) ctx.status = 'error'
+  else if (hasErroredChild) ctx.status = 'error'
+  else if (httpFailed) ctx.status = 'error'
+  else ctx.status = 'ok'
   if (err) {
     ctx.error = {
       name: err.name || 'Error',
@@ -81,4 +97,9 @@ function finalizeAndSave (ctx, err) {
       queries: ctx.queries
     })
   } catch (_) { /* store failures must not crash the request */ }
+
+  // Notify any active WS subscribers that the request is done.
+  try {
+    emitRequestComplete(ctx.id, ctx.status, ctx.durationInMilliseconds)
+  } catch (_) { /* WS errors must not crash the request */ }
 }

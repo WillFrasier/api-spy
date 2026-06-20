@@ -4,6 +4,7 @@
 
 import { createInMemoryStore } from './store.js'
 import { run, getRequestId, _activeContext } from './context.js'
+import { setOnQuery, _reset as _resetOnQueryForTests } from './onQuery.js'
 
 export { run, getRequestId, _activeContext }
 export { track } from './track.js'
@@ -22,6 +23,9 @@ export function init (opts = {}) {
   if (opts.store) {
     _store = opts.store
   }
+  if (opts.onQuery !== undefined) {
+    setOnQuery(opts.onQuery)
+  }
   // Spec §FR-012: a single [api-spy] log line on init confirming store type.
   // (intentionally without requestId — init happens before any request.)
   // eslint-disable-next-line no-console
@@ -39,3 +43,8 @@ export function _store_get () {
 
 // Re-export as `_store` for ergonomics — the demo uses `apiSpy._store()`.
 export { _store_get as _store }
+
+export { wsHandler, emitRequestComplete } from './wsHandler.js'
+
+// Test-only escape hatch for clearing the onQuery hook between tests.
+export { _resetOnQueryForTests }

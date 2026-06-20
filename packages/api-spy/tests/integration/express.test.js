@@ -105,6 +105,55 @@ test('US3 express middleware: route that throws still records the request as err
   assert.match(record.queries[0].error.message, /route exploded/)
 })
 
+test('US3 express middleware: route catches a track() throw and returns 200 — request is still marked errored because a child query errored', async () => {
+  // This is the regression test for the "child errored but HTTP layer is ok" case.
+  // The demo's /scenarios/error route returns 503, but consider a route that
+  // catches the inner failure and returns 200 anyway (graceful degradation).
+  // The developer's first signal that something went wrong is the request
+  // badge — it must be red, not green.
+  const app = express()
+  app.use(apiSpy.expressMiddleware())
+  app.get('/probe', async (req, res, next) => {
+    try {
+      await apiSpy.track('flaky.upstream', async () => {
+        throw new Error('upstream 503')
+      })
+    } catch (_) {
+      // Swallow the error and return a degraded response.
+      return res.json({ ok: true, degraded: true })
+    }
+  })
+  const res = await request(app).get('/probe')
+  assert.equal(res.status, 200, 'route returns 200 — degraded but successful')
+  const record = apiSpy._store().get(res.headers['x-apispy-requestid'])
+  assert.ok(record, 'record must be saved')
+  assert.equal(record.status, 'error', 'request status must be "error" because a child query errored, even though HTTP layer returned 200')
+  assert.equal(record.queries.length, 1)
+  assert.equal(record.queries[0].status, 'error')
+})
+
+test('US3 express middleware: 401 response with zero queries is marked errored (auth guard case)', async () => {
+  // Routes that fail before any backend work — e.g. an auth guard that
+  // returns 401 — must still surface as status=error in the overlay.
+  // The developer needs to see "this request failed" regardless of
+  // whether anything was instrumented.
+  const app = express()
+  app.use(apiSpy.expressMiddleware())
+  app.get('/probe', (req, res, next) => {
+    const err = new Error('missing or invalid auth token')
+    err.status = 401
+    next(err)
+  })
+  app.use((err, req, res, next) => {
+    res.status(err.status || 500).json({ error: err.message })
+  })
+  const res = await request(app).get('/probe')
+  assert.equal(res.status, 401)
+  const record = apiSpy._store().get(res.headers['x-apispy-requestid'])
+  assert.ok(record)
+  assert.equal(record.status, 'error', '401 response with no queries must be marked errored')
+})
+
 test('US3 express middleware: 100 concurrent requests produce 100 distinct ids and 100 records', async () => {
   const app = buildApp((req, res) => res.json({ id: apiSpy.getRequestId() }))
   const responses = await Promise.all(

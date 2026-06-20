@@ -1,0 +1,36 @@
+{
+  "name": "api-spy-overlay-react",
+  "version": "0.1.0",
+  "description": "In-page debug overlay for api-spy: draggable glyph + live Gantt chart, driven by WebSocket events from the SDK.",
+  "type": "module",
+  "main": "./src/index.js",
+  "exports": {
+    ".": "./src/index.js"
+  },
+  "files": [
+    "src/"
+  ],
+  "scripts": {
+    "test": "node --test --test-reporter=spec 'tests/unit/**/*.test.js'",
+    "test:all": "node --test --test-reporter=spec 'tests/**/*.test.js'"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "keywords": [
+    "observability",
+    "debugger",
+    "react",
+    "gantt"
+  ],
+  "author": "Will Frasier",
+  "license": "ISC",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/WillFrasier/api-spy.git",
+    "directory": "packages/api-spy-overlay-react"
+  },
+  "peerDependencies": {
+    "react": ">=18.0.0"
+  }
+}

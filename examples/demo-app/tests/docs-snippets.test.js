@@ -8,9 +8,9 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import request from 'supertest'
-import createServer from '../src/server.js'
+import { createApp } from '../src/server.js'
 
-const app = createServer()
+const app = createApp()
 
 test('docs: root README "5-line to instrument" snippet — exact code path works', async () => {
   // The root README's snippet is a minimal version of the demo loop:

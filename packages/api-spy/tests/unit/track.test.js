@@ -201,6 +201,67 @@ test('track(): opts.metadata is preserved on the query entry', async () => {
   })
 })
 
+test('track(): opts.onResult(result) merges post-call metadata into the query entry', async () => {
+  // onResult is for information that is only known after the call completes
+  // (e.g. LLM tokens + cost returned by the API). It must not be called when
+  // fn() throws, and it must not break the call if it itself throws.
+  const { run, track } = await import('../../src/index.js')
+  let ctxRef
+
+  await run(async () => {
+    ctxRef = (await import('../../src/context.js'))._activeContext()
+    await track('llm.gpt-4o-mini.chat', async () => ({ tokensIn: 142, tokensOut: 58, costUsd: 0.000123 }), {
+      metadata: { provider: 'openai', model: 'gpt-4o-mini' },
+      onResult: (r) => ({ tokensIn: r.tokensIn, tokensOut: r.tokensOut, costUsd: r.costUsd })
+    })
+  })
+
+  assert.deepEqual(ctxRef.queries[0].metadata, {
+    provider: 'openai',
+    model: 'gpt-4o-mini',
+    tokensIn: 142,
+    tokensOut: 58,
+    costUsd: 0.000123
+  })
+})
+
+test('track(): opts.onResult is NOT called when fn() throws (no spurious metadata on error)', async () => {
+  let onResultCalled = false
+  const { run, track } = await import('../../src/index.js')
+  let ctxRef
+
+  await run(async () => {
+    ctxRef = (await import('../../src/context.js'))._activeContext()
+    try {
+      await track('boom', async () => { throw new Error('kaboom') }, {
+        onResult: (r) => { onResultCalled = true; return { extra: 1 } }
+      })
+    } catch (_) { /* expected */ }
+  })
+
+  assert.equal(onResultCalled, false, 'onResult must not run when fn() throws')
+  assert.equal(ctxRef.queries[0].status, 'error')
+  assert.equal(ctxRef.queries[0].metadata, null, 'metadata remains null when fn() throws and no static metadata was given')
+})
+
+test('track(): a throwing onResult does not break the call (errors are swallowed)', async () => {
+  // The contract is that onResult failures must never break the caller's flow.
+  const { run, track } = await import('../../src/index.js')
+  let ctxRef
+
+  let result
+  await run(async () => {
+    ctxRef = (await import('../../src/context.js'))._activeContext()
+    result = await track('safe', async () => 42, {
+      onResult: () => { throw new Error('oops') }
+    })
+  })
+
+  assert.equal(result, 42, 'the return value still resolves to the caller')
+  assert.equal(ctxRef.queries[0].status, 'ok')
+  assert.equal(ctxRef.queries[0].metadata, null, 'a throwing onResult leaves metadata null')
+})
+
 // ----- US1 — real-world async patterns -----
 
 test('track(): PARALLEL fan-out — three parallel calls record independently with correct durations', async () => {

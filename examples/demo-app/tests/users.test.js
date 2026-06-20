@@ -23,8 +23,8 @@ addFormats(ajv)
 const validateSuccess = ajv.compile(successSchema)
 const validateError = ajv.compile(errorSchema)
 
-const { default: createServer } = await import('../src/server.js')
-const app = createServer()
+const { createApp } = await import('../src/server.js')
+const app = createApp()
 
 test('US5 demo: GET /api/v1/users/:id returns 200 + user JSON + X-ApiSpy-RequestId', async () => {
   const res = await request(app).get('/api/v1/users/42')
