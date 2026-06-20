@@ -1,7 +1,6 @@
 // eslint.config.js — flat config for the api-spy monorepo.
 //
-// Scope: src/ + tests/ in the 3 active packages. legacy/ is frozen
-// and excluded.
+// Scope: src/ + tests/ in the 3 active packages.
 //
 // Style:
 // - Node + ESM globals (`globalThis`, `process`, `console`, etc.)
@@ -21,7 +20,6 @@ export default [
   {
     ignores: [
       '**/node_modules/**',
-      'legacy/**',
       'dist/**',
       'build/**',
       'coverage/**',

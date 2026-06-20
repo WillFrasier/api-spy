@@ -7,7 +7,6 @@
 //
 // Scope: src/ + tests/ in the 3 active packages. Excludes:
 //   - node_modules
-//   - legacy/ (deprecated, frozen)
 //   - any directory starting with .
 //   - examples/demo-app/index.html, vite.config.js — actually included
 //     because vite.config.js is .js

@@ -1,6 +1,6 @@
 // computeGanttLayout.js — framework-free Gantt math.
-// Ported from legacy/extension/api-spy-extension/public/scripts/panel.js
-// lines 178-233. The math is pure; the React component owns all DOM.
+// Ported from the original Chrome DevTools extension panel.js Gantt
+// logic. The math is pure; the React component owns all DOM.
 // Spec: specs/003-overlay/data-model.md §Gantt Layout Schema
 
 /**
