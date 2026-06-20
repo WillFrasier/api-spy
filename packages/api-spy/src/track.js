@@ -45,7 +45,7 @@ export async function track (name, fn, opts = {}) {
             ? { ...query.metadata, ...extra }
             : { ...extra }
         }
-      } catch (_) {
+      } catch {
         // onResult must never break the caller's flow.
       }
     }

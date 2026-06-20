@@ -8,7 +8,7 @@ import { test } from 'node:test'
 import assert from 'node:assert/strict'
 
 import { newQuery, finalizeQuery, popOpen } from '../../src/queries.js'
-import { setOnQuery, getOnQuery, _reset } from '../../src/onQuery.js'
+import { setOnQuery, _reset } from '../../src/onQuery.js'
 
 const UUID_V4 = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/
 const ISO_8601_MS = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/

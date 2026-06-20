@@ -46,7 +46,7 @@ test('chaining pattern: get the previous hook inside the new one for fan-out', (
   const first = () => calls.push('first')
   const second = () => {
     calls.push('second')
-    const prev = getOnQuery()
+    const _prev = getOnQuery()
     // Calling 'first' directly (not via getOnQuery) is the chaining
     // pattern. This documents that the registry is replaceable,
     // not additive.

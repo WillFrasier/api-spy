@@ -248,11 +248,11 @@ export function endRequest (opts = {}) {
 
   try {
     emitRequestComplete(ctx.id, ctx.status, ctx.durationInMilliseconds)
-  } catch (_) { /* WS errors must not crash the request */ }
+  } catch { /* WS errors must not crash the request */ }
 
   // Clear the ALS scope so subsequent startRequest() / run() see no
   // active context. Node's ALS.exit() only works for run()-framed
   // scopes — startRequest() uses enterWith, so we use enterWith(undefined)
   // to clear the store from the same async context.
-  try { getStorage().enterWith(undefined) } catch (_) { /* safe */ }
+  try { getStorage().enterWith(undefined) } catch { /* safe */ }
 }

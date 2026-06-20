@@ -45,8 +45,9 @@ test('track(): resolves to the inner return value and records a query entry', as
 
   assert.deepEqual(recorded, { id: 42, name: 'Ada' }, 'track() must resolve to the inner value')
 
-  const ctx = (await import('../../src/context.js'))._activeContext() // null outside run
+  const _ctx = (await import('../../src/context.js'))._activeContext() // null outside run
   // We need the context INSIDE run; capture it during run via a closure.
+  // (the variable above is for documentation only)
 })
 
 test('track(): recorded query has name, startTime, endTime, duration, status, error', async () => {
@@ -234,9 +235,9 @@ test('track(): opts.onResult is NOT called when fn() throws (no spurious metadat
     ctxRef = (await import('../../src/context.js'))._activeContext()
     try {
       await track('boom', async () => { throw new Error('kaboom') }, {
-        onResult: (r) => { onResultCalled = true; return { extra: 1 } }
+        onResult: (_r) => { onResultCalled = true; return { extra: 1 } }
       })
-    } catch (_) { /* expected */ }
+    } catch { /* expected */ }
   })
 
   assert.equal(onResultCalled, false, 'onResult must not run when fn() throws')

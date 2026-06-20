@@ -26,7 +26,7 @@ export function createApp () {
   // Error handler — surfaces route-level errors as JSON. The api-spy
   // middleware has already recorded the request as status=error and
   // emitted request-complete on the WS stream.
-  app.use((err, req, res, next) => {
+  app.use((err, req, res, _next) => {
     const status = err.status || err.statusCode || 500
     res.status(status).json({
       error: 'request_failed',
@@ -61,7 +61,7 @@ if (isMainModule) {
   apiSpy.wsHandler({ path: '/api/v1/apiSpyControl' })(server)
     .then(startListening)
     .catch((err) => {
-      // eslint-disable-next-line no-console
+       
       console.error('[api-spy] failed to attach wsHandler:', err.message)
       startListening()
     })
@@ -83,15 +83,15 @@ function listenWithRetry (server, startPort, maxProbes = 20) {
         attempt++
         tryListen()
       } else {
-        // eslint-disable-next-line no-console
+         
         console.error(`[api-spy] failed to bind after ${attempt} attempts:`, err.message)
         process.exit(1)
       }
     })
     server.listen(port, '::', () => {
-      // eslint-disable-next-line no-console
+       
       console.log(`[api-spy] demo app listening on http://localhost:${port}`)
-      // eslint-disable-next-line no-console
+       
       console.log(`[api-spy] overlay at http://localhost:${port}/`)
     })
   }

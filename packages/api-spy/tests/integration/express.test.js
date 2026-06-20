@@ -93,7 +93,7 @@ test('US3 express middleware: route that throws still records the request as err
       return next(err)
     }
   })
-  app.use((err, req, res, next) => {
+  app.use((err, req, res, _next) => {
     res.status(500).json({ error: err.message })
   })
   const res = await request(app).get('/probe')
@@ -113,12 +113,12 @@ test('US3 express middleware: route catches a track() throw and returns 200 — 
   // badge — it must be red, not green.
   const app = express()
   app.use(apiSpy.expressMiddleware())
-  app.get('/probe', async (req, res, next) => {
+  app.get('/probe', async (req, res, _next) => {
     try {
       await apiSpy.track('flaky.upstream', async () => {
         throw new Error('upstream 503')
       })
-    } catch (_) {
+    } catch {
       // Swallow the error and return a degraded response.
       return res.json({ ok: true, degraded: true })
     }
@@ -139,12 +139,12 @@ test('US3 express middleware: 401 response with zero queries is marked errored (
   // whether anything was instrumented.
   const app = express()
   app.use(apiSpy.expressMiddleware())
-  app.get('/probe', (req, res, next) => {
+  app.get('/probe', (_req, _res, next) => {
     const err = new Error('missing or invalid auth token')
     err.status = 401
     next(err)
   })
-  app.use((err, req, res, next) => {
+  app.use((err, req, res, _next) => {
     res.status(err.status || 500).json({ error: err.message })
   })
   const res = await request(app).get('/probe')

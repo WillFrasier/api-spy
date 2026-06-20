@@ -92,10 +92,10 @@ test('run(): a nested run() creates a NEW ALS frame (a fresh id, not the outer o
   // run() does NOT refuse to nest and does NOT share the outer ctx;
   // it generates its own id (or uses opts.id if supplied).
   // This is the legacy Phase 1 contract.
-  let outerId, innerId, outerCtxSnapshot
+  let outerId, innerId, _outerCtxSnapshot
   await run(async () => {
     outerId = getRequestId()
-    outerCtxSnapshot = _activeContext()
+    _outerCtxSnapshot = _activeContext()
     await run(async () => {
       innerId = getRequestId()
     })

@@ -35,7 +35,7 @@ export function useApiSpyWebSocket (opts = {}) {
       }
       ws.onmessage = (event) => {
         let msg
-        try { msg = JSON.parse(event.data) } catch (_) { return }
+        try { msg = JSON.parse(event.data) } catch { return }
         if (msg.type === 'query') dispatch({ type: 'query', payload: msg })
         else if (msg.type === 'request-complete') dispatch({ type: 'request-complete', payload: msg })
         else if (msg.type === 'pong') { /* keepalive */ }

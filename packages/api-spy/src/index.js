@@ -4,7 +4,7 @@
 // Contract: data-model.md §API Surface, spec.md §FR-001
 
 import { createInMemoryStore } from './store.js'
-import { run, getRequestId, _activeContext } from './context.js'
+import { _activeContext } from './context.js'
 import { setOnQuery, _reset as _resetOnQueryForTests } from './onQuery.js'
 
 export { run, getRequestId, _activeContext } from './context.js'
@@ -33,7 +33,7 @@ export function init (opts = {}) {
   }
   // Spec §FR-012: a single [api-spy] log line on init confirming store type.
   // (intentionally without requestId — init happens before any request.)
-  // eslint-disable-next-line no-console
+   
   console.log(`[api-spy] initialized store=${_store.constructor.name || 'Store'} capacity=${_store.size?.() ?? 'n/a'}`)
 }
 

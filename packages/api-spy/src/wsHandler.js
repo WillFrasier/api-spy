@@ -65,7 +65,7 @@ export function wsHandler (opts = {}) {
     const msg = JSON.stringify({ type: 'query', requestId: ctx?.id ?? null, query })
     for (const ws of subscribers) {
       if (ws.readyState === 1 /* OPEN */) {
-        try { ws.send(msg) } catch (_) { /* socket may be mid-close */ }
+        try { ws.send(msg) } catch { /* socket may be mid-close */ }
       }
     }
   })
@@ -97,9 +97,9 @@ export function wsHandler (opts = {}) {
 
       clientWs.on('message', (data) => {
         let msg
-        try { msg = JSON.parse(data.toString()) } catch (_) { return }
+        try { msg = JSON.parse(data.toString()) } catch { return }
         if (msg && msg.type === 'ping') {
-          try { clientWs.send(JSON.stringify({ type: 'pong', t: msg.t })) } catch (_) {}
+          try { clientWs.send(JSON.stringify({ type: 'pong', t: msg.t })) } catch { /* ignore */ }
         }
       })
     })
@@ -123,7 +123,7 @@ export function emitRequestComplete (requestId, status, durationInMilliseconds) 
   })
   for (const ws of subscribers) {
     if (ws.readyState === 1) {
-      try { ws.send(msg) } catch (_) { /* socket may be mid-close */ }
+      try { ws.send(msg) } catch { /* socket may be mid-close */ }
     }
   }
 }

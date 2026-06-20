@@ -96,10 +96,10 @@ function finalizeAndSave (ctx, err, statusCode) {
       error: ctx.error,
       queries: ctx.queries
     })
-  } catch (_) { /* store failures must not crash the request */ }
+  } catch { /* store failures must not crash the request */ }
 
   // Notify any active WS subscribers that the request is done.
   try {
     emitRequestComplete(ctx.id, ctx.status, ctx.durationInMilliseconds)
-  } catch (_) { /* WS errors must not crash the request */ }
+  } catch { /* WS errors must not crash the request */ }
 }

@@ -45,17 +45,12 @@ router.get('/mixed', async (req, res, next) => {
 router.get('/error', async (req, res, next) => {
   try {
     await apiSpy.track('db.users.findById', () => findUser(42))
-    try {
-      await apiSpy.track('http.flaky.upstream', async () => {
-        await new Promise(r => setTimeout(r, 50))
-        const e = new Error('upstream 503 — service unavailable')
-        e.status = 503
-        throw e
-      })
-    } catch (err) {
-      // Surface the error so the client sees a 500
-      throw err
-    }
+    await apiSpy.track('http.flaky.upstream', async () => {
+      await new Promise(r => setTimeout(r, 50))
+      const e = new Error('upstream 503 — service unavailable')
+      e.status = 503
+      throw e
+    })
   } catch (err) { next(err) }
 })
 

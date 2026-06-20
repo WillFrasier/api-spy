@@ -1,0 +1,29 @@
+{
+  "name": "api-spy-monorepo",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Monorepo root for the api-spy SDK, the React overlay, and the demo app.",
+  "type": "module",
+  "workspaces": [
+    "packages/*",
+    "examples/*"
+  ],
+  "scripts": {
+    "blt": "node ./scripts/blt.js",
+    "lint": "eslint packages/api-spy/src packages/api-spy/tests packages/api-spy-overlay-react/src packages/api-spy-overlay-react/tests examples/demo-app/src examples/demo-app/tests",
+    "lint:js-syntax": "node ./scripts/syntax-check.js",
+    "test:sdk": "npm --workspace api-spy run test:all",
+    "test:overlay": "npm --workspace api-spy-overlay-react run test:all",
+    "test:demo": "npm --workspace api-spy-demo-app run test",
+    "test": "npm run test:sdk && npm run test:overlay && npm run test:demo"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "license": "ISC",
+  "devDependencies": {
+    "@eslint/js": "^9.39.4",
+    "eslint": "^9.39.4",
+    "globals": "^15.15.0"
+  }
+}

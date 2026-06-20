@@ -102,7 +102,7 @@ function notify (ctx, query) {
   if (!hook) return
   try {
     hook(ctx, query)
-  } catch (_) {
+  } catch {
     // Subscriber errors must never break the caller's flow.
   }
 }
