@@ -4,20 +4,9 @@
 // Each bar's label is the query name + duration. If the query carries
 // api-spy metadata (e.g. tokensIn/tokensOut/costUsd for LLM calls), the
 // bar also shows the most useful summary: cost for LLM-style calls,
-// a compact "key=value" string otherwise. The total cost across the
-// request is shown in the header.
+// a compact "key=value" string otherwise.
 import React from 'react'
 import { computeGanttLayout } from '../lib/computeGanttLayout.js'
-
-// Sum cost across queries that have it. Treats missing cost as 0.
-function sumCost (queries) {
-  let total = 0
-  for (const q of queries || []) {
-    const c = q && q.metadata && q.metadata.costUsd
-    if (typeof c === 'number' && Number.isFinite(c)) total += c
-  }
-  return total
-}
 
 // Format a USD number compactly: $1.23, $0.0123, $0.000456, $1.2k
 function formatUsd (n) {
@@ -59,18 +48,11 @@ export function GanttChart ({ queries }) {
     return <div className="api-spy-gantt api-spy-gantt--empty">no queries yet</div>
   }
   const layout = computeGanttLayout({ queries })
-  const totalCost = sumCost(queries)
   // Build a lookup so we can attach each bar to its original query (for metadata).
   const byId = new Map((queries || []).map((q) => [q.id, q]))
 
   return (
     <div className="api-spy-gantt">
-      {totalCost > 0 && (
-        <div className="api-spy-gantt__cost-total">
-          <span className="api-spy-gantt__cost-label">total cost</span>
-          <span className="api-spy-gantt__cost-value">{formatUsd(totalCost)}</span>
-        </div>
-      )}
       <div className="api-spy-gantt__timeline" style={{ position: 'relative', height: `${layout.rows.length * 26}px` }}>
         {layout.rows.map((row, i) => {
           const q = byId.get(row.queryId) || {}
