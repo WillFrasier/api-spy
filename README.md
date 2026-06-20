@@ -58,9 +58,10 @@ export function App() {
 
 ## Contributing
 
-See `specs/001-phase1-sdk-foundation/spec.md` for the design rationale and
-`specs/001-phase1-sdk-foundation/tasks.md` for the task breakdown. PRs that
-touch the public API should add a test under `tests/contract/`.
+See `specs/001-phase1-sdk-foundation/spec.md` for the SDK foundation, and
+`specs/003-overlay/spec.md` for the in-page debug overlay (React component +
+WebSocket-driven live Gantt). PRs that touch the public API should add a
+test under `tests/contract/`.
 
 ## License
 
