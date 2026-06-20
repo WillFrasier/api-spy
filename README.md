@@ -1,17 +1,11 @@
 # api-spy
 
-Instrument the backend calls your API makes — DB, HTTP, LLM — and watch them on a live Gantt chart inside your app.
-
-![api-spy overlay](./api-spy.png)
-
-## What it is
+_Goal_: Understand and visualize the calls your API makes so that you can diagnose performance issues and improve the overall health of your API.
 
 - An Express middleware + `track()` helper that allows you to instrument any call your server makes to external services. Database calls, HTTP calls, LLM calls, etc.
 - A React component (`<ApiSpyOverlay />`) that floats in the corner of the page and shows the call graph as it fills in.
 
-The goal: Understand and visualize the calls your API makes so that you can diagnose performance issues and improve the overall health of your API.
-
-![api-spy overlay](./api-spy-overlay.png)
+![api-spy overlay](./api-spy.png)
 
 ## Install
 
